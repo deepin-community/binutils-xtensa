@@ -1,5 +1,48 @@
-template-repository (1.0-1) unstable; urgency=medium
+binutils-xtensa (6) unstable; urgency=medium
 
-  * Initial release
+  [Debian Janitor]
+  * Remove constraints unnecessary since buster (oldstable):
+    + Build-Depends: Drop versioned constraint on dejagnu (>= 1.4.2-1.1).
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+  [Jonathan McDowell]
+  * Rename source package to binutils-xtensa as prelude to building esp32
+    variants.
+
+ -- Jonathan McDowell <noodles@earth.li>  Sat, 04 Nov 2023 15:10:28 +0000
+
+binutils-xtensa-lx106 (5) unstable; urgency=medium
+
+  * Bump debhelper-compat to level 13
+  * Bump Standards-Version to 4.6.2 (no changes)
+
+ -- Jonathan McDowell <noodles@earth.li>  Tue, 27 Dec 2022 11:17:36 +0000
+
+binutils-xtensa-lx106 (4) unstable; urgency=medium
+
+  * Add --enable-deterministic-archives to help with reproducible builds.
+    Thanks to Vagrant Cascadian. (Closes: #1003494)
+  * Bump Standards-Version to 4.6.0.1 (no changes)
+  * Switch to debhelper-compat and use level 12
+  * Work around removal of runstatedir from autoconf2.69
+
+ -- Jonathan McDowell <noodles@earth.li>  Tue, 11 Jan 2022 08:57:56 +0000
+
+binutils-xtensa-lx106 (3) unstable; urgency=medium
+
+  * Strip new binutils version date suffix from upstream directory name
+    (Closes: #935274)
+  * Don't error out on a compiler warning
+
+ -- Jonathan McDowell <noodles@earth.li>  Wed, 21 Aug 2019 12:23:00 +0100
+
+binutils-xtensa-lx106 (2) unstable; urgency=medium
+
+  * Remove unnecessary build-deps (Closes: #921851)
+
+ -- Jonathan McDowell <noodles@earth.li>  Fri, 22 Feb 2019 17:13:02 +0000
+
+binutils-xtensa-lx106 (1) unstable; urgency=medium
+
+  * First release, based on binutils-arm-none-eabi (Closes: #917546)
+
+ -- Jonathan McDowell <noodles@earth.li>  Sat, 29 Dec 2018 18:37:57 +0000
