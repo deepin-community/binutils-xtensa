@@ -1,4 +1,68 @@
 #!/usr/bin/make -f
+export DH_VERBOSE=1
+
+target=xtensa-lx106-elf
+
+package=binutils-xtensa-lx106
+top_dir=$(shell pwd)
+binutils_dir=/usr/src/binutils
+stampdir=debian/stamp
+
+source_version := $(shell dpkg-query -W -f="\$${Version}\n" binutils-source)
+deb_version := $(source_version)+$(shell dpkg-parsechangelog | sed -ne "s/^Version: \(.*\)/\1/p")
+deb_upstream_version := $(shell echo $(deb_version) | cut -d- -f1)
+base_version := $(shell echo $(deb_version) | sed -e 's/\([1-9]\.[0-9]\).*-.*/\1/')
+
+upstream_dir := binutils-$(shell echo $(deb_upstream_version) | sed -Ee 's/\.[0-9]{8}//')
+
+untar_stamp=$(stampdir)/tar
+
+buildflags=$(shell dpkg-buildflags --export=configure)
+BUILT_USING := $(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W binutils-source)
+
+# Need to override the -Wall that will get added otherwise
+CFLAGS="-O2 -g"
+
+configure_flags = \
+	--target=$(target) \
+	--prefix=/usr/lib \
+	--bindir=/usr/bin \
+	--libdir=/usr/lib/xtensa-lx106-elf \
+	--infodir=/usr/share/doc/$(package)/info \
+	--htmldir=/usr/share/doc/$(package)/html \
+	--pdfdir=/usr/share/doc/$(package)/pdf \
+	--mandir=/usr/share/man \
+	--disable-nls \
+	--disable-werror \
+	--enable-plugins \
+	--enable-interwork \
+	--with-system-zlib \
+	--enable-deterministic-archives \
+	"--with-pkgversion=$(deb_version)" \
+	$(buildflags)
 
 %:
-	dh $@
+	dh $@ -D$(upstream_dir) -Bbuild
+
+$(untar_stamp):
+	tar xf $(binutils_dir)/binutils-*.tar.*
+	cp debian/overlay/bfd/xtensa-modules.c binutils-*/bfd/
+	cp debian/overlay/include/xtensa-config.h binutils-*/include/
+	mkdir -p $(stampdir)
+	cp /usr/share/doc/binutils-source/copyright debian/copyright
+	touch $@
+
+override_dh_auto_configure: $(untar_stamp)
+	install -d build
+	cd build && ../$(upstream_dir)/configure $(configure_flags)
+
+override_dh_gencontrol:
+	dh_gencontrol -a -- -v$(deb_version) -Vlocal:Version=$(deb_upstream_version) -Vbinutils:Version=$(source_version) -VBuilt-Using="$(BUILT_USING)"
+
+override_dh_auto_clean:
+	rm -rf $(upstream_dir) build $(stampdir)
+
+override_dh_installchangelogs:
+	dh_installchangelogs $(upstream_dir)/ChangeLog
+
+override_dh_auto_test:
